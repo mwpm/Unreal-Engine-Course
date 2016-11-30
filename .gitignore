@@ -1,2 +1,7 @@
 Debug/
 *.VC.db
+Binaries/
+Build/
+Intermediate/
+Saved/
+DerivedDataCache/
