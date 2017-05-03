@@ -19,17 +19,30 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
+	Owner = GetOwner();
+	ActorThatOpens = GetWorld()->GetFirstPlayerController()->GetPawn();
+}
 
-	AActor* Owner = GetOwner();
-	FQuat rotation = Owner->GetTransform().GetRotation();
-	
-	FString ObjectName = Owner->GetName();
-	FString ObjectPosition = rotation.ToString();
+void UOpenDoor::OpenDoor()
+{
+	// Debug info
+	//FQuat rotation = Owner->GetTransform().GetRotation();
+	//FString ObjectName = Owner->GetName();
+	//FString ObjectPosition = rotation.ToString();
+	//UE_LOG(LogTemp, Warning, TEXT("%s has rotation %s"), *ObjectName, *ObjectPosition);
 
-	UE_LOG(LogTemp, Warning, TEXT("%s has rotation %s"), *ObjectName, *ObjectPosition);
+	Owner->SetActorRotation(FRotator(0.0f, OpenAngle, 0.0f));
+}
 
-	FRotator NewRotation = FRotator(0.0f, 90.0f, 0.0f);
-	Owner->SetActorRotation(NewRotation);
+void UOpenDoor::CloseDoor()
+{
+	// Debug info
+	//FQuat rotation = Owner->GetTransform().GetRotation();
+	//FString ObjectName = Owner->GetName();
+	//FString ObjectPosition = rotation.ToString();
+	//UE_LOG(LogTemp, Warning, TEXT("%s has rotation %s"), *ObjectName, *ObjectPosition);
+
+	Owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 }
 
 
@@ -38,6 +51,20 @@ void UOpenDoor::TickComponent( float DeltaTime, ELevelTick TickType, FActorCompo
 {
 	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-	// ...
+	// Poll the Trigger Volume
+	// If the ActorThatOpens is in the volume
+		// Then OpenDoor
+
+	if (PressurePlate->IsOverlappingActor(ActorThatOpens))
+	{
+		OpenDoor();
+		LastDoorOpenTime = GetWorld()->GetTimeSeconds();
+	}
+
+	// Check if it's time to close the door
+	if (GetWorld()->GetTimeSeconds() - LastDoorOpenTime > DoorCloseDelay)
+	{
+		CloseDoor();
+	}
 }
 
